@@ -1,0 +1,262 @@
+<html>
+<head>
+
+<script src="../library/p5.js"></script>
+    <script>
+    var pagePrime = "";
+    function httpGetAsync(theUrl, callback)
+    {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function() {
+            if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+                callback(xmlHttp.responseText);
+        }
+        xmlHttp.open("GET", theUrl, true); // true for asynchronous
+        xmlHttp.send(null);
+    }
+    var voyelles = ['a', 'e', 'i', 'o', 'u'];
+    var iterations = 3;
+    var widthCanvas = 1920;
+    var heightCanvas = 1080;
+
+    async function ResolveTable(page)
+    {
+                    var i = 0;
+
+        if (page[i] == ' ')
+        {
+            stroke(0);
+            fill(0);
+                        console.log("i = " + i + ", x = " + (i * 10 / heightCanvas) + ", y = " + i * 10 % heightCanvas);
+            ellipse((i) % 80  * 10, (i) / 80 * 10, 5, 5);
+        }
+        else// if (page[i] == ',')
+        {
+            var tmp = i;
+            var split = 0;
+            var oldPosition = [[(i + 1600) % 192 * 10, (i + 1600) / 108 * 10], [(i + 1600) % 192 * 10, (i + 1600) / 108 * 10]];
+            var initPos = oldPosition[0];
+            stroke(0);
+            if (page[i] == ',')
+                split++;
+            var tmpSplit = 0;
+            var incrementAngle = 90;
+            var radius = 5;
+            var angle = 0;
+            beginShape();
+            var tmpPos = [];
+            var tmpCircle = [];
+            while (i < page.length) {
+                var value = ((float)(page[i].charCodeAt(0) % 28) / 28 + i % 32 / 32) * 127;
+                stroke(value);
+                fill('rgba(127,127,127, 0.1)');
+                //fill(value, value, value, value / 5);
+                //                      stroke(sin((float)(page[i].charCodeAt(0)) + 1) * 255, (cos((float)(page[i].charCodeAt(0))) + 1) * 255, (sin((float)(page[i].charCodeAt(0)) * cos((float)(page[i].charCodeAt(0)))) + 2) * 255);
+                strokeWeight(value / 20);
+
+                switch (page[i]) {
+                    case '-':
+                        while (page[i] == '-' && i < page.length) {
+                            angle = (angle - incrementAngle) % 360;
+                            tmpCircle = [radius * cos(angle * Math.PI / 180), radius * sin(angle * Math.PI / 180)];
+                            i++;
+                        }
+                        break;
+                    case '+':
+                        while (page[i] == '+' && i < page.length) {
+                            angle = (angle + incrementAngle) % 360;
+                            tmpCircle = [radius * cos(angle * Math.PI / 180), radius * sin(angle * Math.PI / 180)];
+                            i++;
+                        }
+                        break;
+                    case 'f':
+                        incrementAngle = 120;
+                        while (page[i] == 'f' && i < page.length) {
+                            tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+//                                    line(oldPosition[0][0], oldPosition[0][1], (oldPosition[0][0] + radius * cos(angle * Math.PI / 180)) % widthCanvas, (oldPosition[0][1] + radius * sin(angle * Math.PI / 180)) % heightCanvas);
+                            vertex(tmpPos[0], tmpPos[1]);
+                            oldPosition[0] = tmpPos;
+                            i++;
+                        }
+                        break;
+                    case 'b':
+                        while (page[i] == 'b' && i < page.length) {
+                            tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+//                                      line(oldPosition[0][0], oldPosition[0][1], (oldPosition[0][0] + radius * cos(angle * Math.PI / 180)) % widthCanvas, (oldPosition[0][1] + radius * sin(angle * Math.PI / 180)) % heightCanvas);
+                            vertex(tmpPos[0], tmpPos[1]);
+                            oldPosition[0] = tmpPos;
+                            i++;
+                        }
+                        break;
+                    case 'c':
+                        while (page[i] == 'c' && i < page.length) {
+                            oldPosition[0] = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                            i++;
+                        }
+                        break;
+                    case 'd':
+                        incrementAngle = 60;
+                        while (page[i] == 'd' && i < page.length) {
+                            //                                  line(oldPosition[0][0], oldPosition[0][1], (oldPosition[0][0] + radius * cos(angle * Math.PI / 180)) % widthCanvas, (oldPosition[0][1] + radius * sin(angle * Math.PI / 180)) % heightCanvas);
+                            tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                            vertex(tmpPos[0], tmpPos[1]);
+                            oldPosition[0] = tmpPos;
+                            i++;
+                        }
+                        break;
+                    case 'h':
+                        incrementAngle = 90;
+                        while (page[i] == 'h' && i < page.length) {
+                            //                                    line(oldPosition[0][0], oldPosition[0][1], (oldPosition[0][0] + radius * cos(angle * Math.PI / 180)) % widthCanvas, (oldPosition[0][1] + radius * sin(angle * Math.PI / 180)) % heightCanvas);
+                            tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                            vertex(tmpPos[0], tmpPos[1]);
+                            oldPosition[0] = tmpPos;
+                            i++;
+                        }
+                        break;
+                    case 'j':
+                        incrementAngle = 60;
+                        while (page[i] == 'j' && i < page.length) {
+//                                    line(oldPosition[0][0], oldPosition[0][1], (oldPosition[0][0] + radius * cos(angle * Math.PI / 180)) % widthCanvas, (oldPosition[0][1] + radius * sin(angle * Math.PI / 180)) % heightCanvas);
+                            tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                            vertex(tmpPos[0], tmpPos[1]);
+                            oldPosition[0] = tmpPos;
+                            i++
+                        }
+                        break;
+                    case 'k':
+                        incrementAngle = 60;
+                        while (page[i] == 'k' && i < page.length) {
+//                                    line(oldPosition[0][0], oldPosition[0][1], (oldPosition[0][0] + radius * cos(angle * Math.PI / 180)) % widthCanvas, (oldPosition[0][1] + radius * sin(angle * Math.PI / 180)) % heightCanvas);
+                            tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                            vertex(tmpPos[0], tmpPos[1]);
+                            oldPosition[0] = tmpPos;
+                            i++;
+                        }
+                        break;
+                    case 'l':
+                        while (page[i] == 'l' && i < page.length) {
+                            i++;
+                        }
+                        break;
+                    case 'g':
+                        incrementAngle = 120;
+                        while (page[i] == 'g' && i < page.length) {
+//                                    line(oldPosition[0][0], oldPosition[0][1], (oldPosition[0][0] + radius * cos(angle * Math.PI / 180)) % widthCanvas, (oldPosition[0][1] + radius * sin(angle * Math.PI / 180)) % heightCanvas);
+                            tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                            vertex(tmpPos[0], tmpPos[1]);
+                            oldPosition[0] = tmpPos;
+                            i++;
+                        }
+                        break;
+                    case 'm':
+
+                        radius = 20;
+                        tmpCircle = [radius * cos(angle * Math.PI / 180), radius * sin(angle * Math.PI / 180)];
+                        while (page[i] == 'm' && i < page.length) {
+                            i++;
+                        }
+                        break;
+                    case 'n':
+                        radius = 2;
+                        tmpCircle = [radius * cos(angle * Math.PI / 180), radius * sin(angle * Math.PI / 180)];
+                        while (page[i] == 'n' && i < page.length) {
+                            i++;
+                        }
+                        break;
+                    case 'p':
+                        radius = 1;
+                        tmpCircle = [radius * cos(angle * Math.PI / 180), radius * sin(angle * Math.PI / 180)];
+                        while (page[i] == 'p' && i < page.length) {
+                            i++;
+                        }
+                        break;
+                    case 'q':
+                        radius = 5;
+                        tmpCircle = [radius * cos(angle * Math.PI / 180), radius * sin(angle * Math.PI / 180)];
+                        while (page[i] == 'q' && i < page.length) {
+                            i++;
+                        }
+                        break;
+                    case 'r':
+                        radius = 10;
+                        tmpCircle = [radius * cos(angle * Math.PI / 180), radius * sin(angle * Math.PI / 180)];
+                        while (page[i] == 'r' && i < page.length) {
+                            i++;
+                        }
+                        break;
+                    case 's':
+                        radius = 15;
+                        tmpCircle = [radius * cos(angle * Math.PI / 180), radius * sin(angle * Math.PI / 180)];
+                        while (page[i] == 's' && i < page.length) {
+                            i++;
+                        }
+                        break;
+                    case 't':
+                        radius = 8;
+                        tmpCircle = [radius * cos(angle * Math.PI / 180), radius * sin(angle * Math.PI / 180)];
+                        while (page[i] == 't' && i < page.length) {
+                            i++;
+                        }
+                        break;
+                    case 'u':
+                        radius = 12;
+                        tmpCircle = [radius * cos(angle * Math.PI / 180), radius * sin(angle * Math.PI / 180)];
+                        while (page[i] == 'u' && i < page.length) {
+                            i++;
+                        }
+                        break;
+                    default:
+                        i++;
+                        break;
+                }
+                //i++;
+            }
+            //vertex(initPos[0], initPos[1]);
+            endShape();
+        }
+        //return new Promise(resolve => console.log("test"));
+    }
+
+    async function parallelSplit(page)
+    {
+        console.log(page);
+        console.log(page.length);
+        var splitTable = page.split(' ');
+        console.log("Coucou");
+        background(194);
+        var tableFunctions = [];
+            for (var j = 0; j < splitTable.length; j++) {
+                console.log("BEfore = " + j);
+            tableFunctions[j] = ResolveTable(splitTable[j]);
+        }
+        await Promise.all(tableFunctions);
+        //console.log("After" + j);
+    }
+
+    function setup()
+    {
+        httpGetAsync("/page?search=" + document.getElementById("search").value, function(data) {
+            //page = data;
+            createCanvas(widthCanvas, heightCanvas);
+
+            pagePrime = data.replace(/y/g, "z").replace(/z/g, "aeiou").replace(/a/g, "bcd").replace(/e/g, "fgh").replace(/i/g, "jklmn").replace(/o/g, "pqrst").replace(/u/g, "vwx");
+            //for (var index1 = 0; index1 < iterations; index1++)
+            //    page = page.replace(/y/g, "z").replace(/z/g, "aeiou").replace(/a/g, "bcd").replace(/e/g, "fgh").replace(/i/g, "jklmn").replace(/o/g, "pqrst").replace(/u/g, "vwx");
+            for (var index2 = 0; index2 <= iterations; index2++)
+                pagePrime = pagePrime.replace(/b/g, "bcb").replace(/c/g, "ccc").replace(/d/g, "d-g+d+g-g").replace(/f/g, "f+f-f-f+f").replace(/g/g, "gg")
+                        .replace(/h/g, "h").replace(/j/g, "k-j-k").replace(/k/g, "j+k+j").replace(/l/g, "l").replace(/m/g, "m")
+                        .replace(/n/g, "n").replace(/p/g, "p").replace(/q/g, "q").replace(/r/g, "r").replace(/s/g, "s")
+                        .replace(/t/g, "t").replace(/u/g, "u").replace(/v/g, "v+wh+").replace(/w/g, "-hv-w").replace(/x/g, "x");
+            parallelSplit(pagePrime);
+
+        });
+    }
+
+</script>
+</head>
+<body>
+<input type="text" name="Search" id="search" value=""><br>
+<input type="submit" value="Submit" onclick="setup()">
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "name": "babelinterpreter",
+  "version": "1.0.0",
+  "description": "Images interpretation of babel library",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ClementBarbisan/BabelInterpreter.git"
+  },
+  "author": "randomLockNess",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ClementBarbisan/BabelInterpreter/issues"
+  },
+  "homepage": "https://github.com/ClementBarbisan/BabelInterpreter#readme",
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "express": "^4.16.4",
+    "p5": "^0.7.3",
+    "python-shell": "^1.0.7",
+    "typescript": "^3.3.3"
+  }
+}
