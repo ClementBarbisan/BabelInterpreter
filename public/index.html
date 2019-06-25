@@ -15,30 +15,62 @@
         xmlHttp.send(null);
     }
     var voyelles = ['a', 'e', 'i', 'o', 'u'];
-    var iterations = 3;
+    var iterations = 2;
     var widthCanvas = 1920;
     var heightCanvas = 1080;
+    var CustomRandom = function(nseed) {
 
-    async function ResolveTable(page)
+        var seed,
+            constant = Math.pow(2, 13)+1,
+            prime = 1987,
+//any prime number, needed for calculations, 1987 is my favorite:)
+            maximum = 1000;
+//maximum number needed for calculation the float precision of the numbers (10^n where n is number of digits after dot)
+        if (nseed) {
+            seed = nseed;
+        }
+
+        if (seed == null) {
+//before you will correct me in this comparison, read Andrea Giammarchi's text about coercion http://goo.gl/N4jCB
+
+            seed = (new Date()).getTime();
+//if there is no seed, use timestamp
+        }
+
+        return {
+            next : function(min, max) {
+                seed *= constant;
+                seed += prime;
+
+
+                return min && max ? min+seed%maximum/maximum*(max-min) : seed%maximum/maximum;
+// if 'min' and 'max' are not provided, return random number between 0 & 1
+            }
+        }
+    }
+
+    async function ResolveTable(page, curve, i, length, randomNb)
     {
-                    var i = 0;
+        var rng = CustomRandom(length * i);
 
-        if (page[i] == ' ')
-        {
+                    // var i = 0;
+        // pixelDensity(5);
+        // pixelDensity(9.5);
+        // if (page[i] == ' ')
             stroke(0);
             fill(0);
-                        console.log("i = " + i + ", x = " + (i * 10 / heightCanvas) + ", y = " + i * 10 % heightCanvas);
-            ellipse((i) % 80  * 10, (i) / 80 * 10, 5, 5);
-        }
-        else// if (page[i] == ',')
-        {
-            var tmp = i;
-            var split = 0;
-            var oldPosition = [[(i + 1600) % 192 * 10, (i + 1600) / 108 * 10], [(i + 1600) % 192 * 10, (i + 1600) / 108 * 10]];
+            rect(i / 10, length / 20, 5, 5);
+        // }
+        // else// if (page[i] == ',')
+        // {
+            var oldPosition = [[((i) / widthCanvas + (widthCanvas / 2)) % widthCanvas, ((length) / heightCanvas + (heightCanvas / 2)) % heightCanvas], [((i) / widthCanvas + (widthCanvas / 2)) % widthCanvas, ((length) / heightCanvas + (heightCanvas / 2)) % heightCanvas]];
+            i = 0;
+            var split = 1;
             var initPos = oldPosition[0];
             stroke(0);
-            if (page[i] == ',')
-                split++;
+            fill(0, 0, 0, 0);
+            noFill();
+
             var tmpSplit = 0;
             var incrementAngle = 90;
             var radius = 5;
@@ -46,15 +78,22 @@
             beginShape();
             var tmpPos = [];
             var tmpCircle = [];
-            while (i < page.length) {
-                var value = ((float)(page[i].charCodeAt(0) % 28) / 28 + i % 32 / 32) * 127;
-                stroke(value);
-                fill('rgba(127,127,127, 0.1)');
+            strokeWeight(0.05);
+
+        while (i < page.length) {
+                // var value = ((float)(page[i].charCodeAt(0) % 28) / 28 + i % 32 / 32) * 127;
+                stroke(0);
+                //fill('rgba(127,127,127, 0.1)');
                 //fill(value, value, value, value / 5);
                 //                      stroke(sin((float)(page[i].charCodeAt(0)) + 1) * 255, (cos((float)(page[i].charCodeAt(0))) + 1) * 255, (sin((float)(page[i].charCodeAt(0)) * cos((float)(page[i].charCodeAt(0)))) + 2) * 255);
-                strokeWeight(value / 20);
 
                 switch (page[i]) {
+                    case ',':
+                        while (page[i] == ',' && i < page.length) {
+                            split++;
+                            i++;
+                        }
+                        break;
                     case '-':
                         while (page[i] == '-' && i < page.length) {
                             angle = (angle - incrementAngle) % 360;
@@ -72,25 +111,52 @@
                     case 'f':
                         incrementAngle = 120;
                         while (page[i] == 'f' && i < page.length) {
-                            tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                            // tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
 //                                    line(oldPosition[0][0], oldPosition[0][1], (oldPosition[0][0] + radius * cos(angle * Math.PI / 180)) % widthCanvas, (oldPosition[0][1] + radius * sin(angle * Math.PI / 180)) % heightCanvas);
-                            vertex(tmpPos[0], tmpPos[1]);
-                            oldPosition[0] = tmpPos;
+                            for (var j = 0; j < split; j++) {
+                                if (!curve) {
+                                    // tmpPos = [(oldPosition[0][0] + tmpCircle[0]), (oldPosition[0][1] + tmpCircle[1])];
+                                    tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                                    vertex(tmpPos[0], tmpPos[1]);
+                                } else {
+                                    tmpPos = [(oldPosition[0][0] + tmpCircle[0] + randomNb) % widthCanvas, (oldPosition[0][1] + tmpCircle[1] + randomNb) % heightCanvas];
+                                    // tmpPos = [(oldPosition[0][0] + tmpCircle[0] + randomNb), (oldPosition[0][1] + tmpCircle[1] + randomNb)];
+                                    curveVertex(tmpPos[0], tmpPos[1]);
+                                }
+                                oldPosition[0] = tmpPos;
+                            }
                             i++;
                         }
                         break;
                     case 'b':
                         while (page[i] == 'b' && i < page.length) {
-                            tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                            // tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
 //                                      line(oldPosition[0][0], oldPosition[0][1], (oldPosition[0][0] + radius * cos(angle * Math.PI / 180)) % widthCanvas, (oldPosition[0][1] + radius * sin(angle * Math.PI / 180)) % heightCanvas);
-                            vertex(tmpPos[0], tmpPos[1]);
-                            oldPosition[0] = tmpPos;
+                            for (var j = 0; j < split; j++) {
+                                if (!curve) {
+                                    tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                                    // tmpPos = [(oldPosition[0][0] + tmpCircle[0]), (oldPosition[0][1] + tmpCircle[1])];
+                                    vertex(tmpPos[0], tmpPos[1]);
+                                } else {
+                                    tmpPos = [(oldPosition[0][0] + tmpCircle[0] + randomNb) % widthCanvas, (oldPosition[0][1] + tmpCircle[1] + randomNb) % heightCanvas];
+                                    // tmpPos = [(oldPosition[0][0] + tmpCircle[0] + randomNb), (oldPosition[0][1] + tmpCircle[1] + randomNb)];
+                                    curveVertex(tmpPos[0], tmpPos[1]);
+                                }
+                                oldPosition[0] = tmpPos;
+                            }
                             i++;
                         }
                         break;
                     case 'c':
                         while (page[i] == 'c' && i < page.length) {
-                            oldPosition[0] = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                            for (var j = 0; j < split; j++) {
+                                if (curve)
+                                // oldPosition[0] = [(oldPosition[0][0] + tmpCircle[0]), (oldPosition[0][1] + tmpCircle[1])];
+                                    oldPosition[0] = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                                else
+                                // oldPosition[0] = [(oldPosition[0][0] + tmpCircle[0] + randomNb), (oldPosition[0][1] + tmpCircle[1] + randomNb)];
+                                    oldPosition[0] = [(oldPosition[0][0] + tmpCircle[0] + randomNb) % widthCanvas, (oldPosition[0][1] + tmpCircle[1] + randomNb) % heightCanvas];
+                            }
                             i++;
                         }
                         break;
@@ -98,9 +164,19 @@
                         incrementAngle = 60;
                         while (page[i] == 'd' && i < page.length) {
                             //                                  line(oldPosition[0][0], oldPosition[0][1], (oldPosition[0][0] + radius * cos(angle * Math.PI / 180)) % widthCanvas, (oldPosition[0][1] + radius * sin(angle * Math.PI / 180)) % heightCanvas);
-                            tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
-                            vertex(tmpPos[0], tmpPos[1]);
-                            oldPosition[0] = tmpPos;
+                            // tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                            for (var j = 0; j < split; j++) {
+                                if (!curve) {
+                                    tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                                    // tmpPos = [(oldPosition[0][0] + tmpCircle[0]), (oldPosition[0][1] + tmpCircle[1])];
+                                    vertex(tmpPos[0], tmpPos[1]);
+                                } else {
+                                    tmpPos = [(oldPosition[0][0] + tmpCircle[0] + randomNb) % widthCanvas, (oldPosition[0][1] + tmpCircle[1] + randomNb) % heightCanvas];
+                                    // tmpPos = [(oldPosition[0][0] + tmpCircle[0] + randomNb), (oldPosition[0][1] + tmpCircle[1] + randomNb)];
+                                    curveVertex(tmpPos[0], tmpPos[1]);
+                                }
+                                oldPosition[0] = tmpPos;
+                            }
                             i++;
                         }
                         break;
@@ -108,9 +184,20 @@
                         incrementAngle = 90;
                         while (page[i] == 'h' && i < page.length) {
                             //                                    line(oldPosition[0][0], oldPosition[0][1], (oldPosition[0][0] + radius * cos(angle * Math.PI / 180)) % widthCanvas, (oldPosition[0][1] + radius * sin(angle * Math.PI / 180)) % heightCanvas);
-                            tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
-                            vertex(tmpPos[0], tmpPos[1]);
-                            oldPosition[0] = tmpPos;
+                            // tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                            for (var j = 0; j < split; j++) {
+
+                                if (!curve) {
+                                    // tmpPos = [(oldPosition[0][0] + tmpCircle[0]), (oldPosition[0][1] + tmpCircle[1])];
+                                    tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                                    vertex(tmpPos[0], tmpPos[1]);
+                                } else {
+                                    tmpPos = [(oldPosition[0][0] + tmpCircle[0] + randomNb) % widthCanvas, (oldPosition[0][1] + tmpCircle[1] + randomNb) % heightCanvas];
+                                    // tmpPos = [(oldPosition[0][0] + tmpCircle[0] + randomNb), (oldPosition[0][1] + tmpCircle[1] + randomNb)];
+                                    curveVertex(tmpPos[0], tmpPos[1]);
+                                }
+                                oldPosition[0] = tmpPos;
+                            }
                             i++;
                         }
                         break;
@@ -118,9 +205,19 @@
                         incrementAngle = 60;
                         while (page[i] == 'j' && i < page.length) {
 //                                    line(oldPosition[0][0], oldPosition[0][1], (oldPosition[0][0] + radius * cos(angle * Math.PI / 180)) % widthCanvas, (oldPosition[0][1] + radius * sin(angle * Math.PI / 180)) % heightCanvas);
-                            tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
-                            vertex(tmpPos[0], tmpPos[1]);
-                            oldPosition[0] = tmpPos;
+//                             tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                            for (var j = 0; j < split; j++) {
+                                if (!curve) {
+                                    // tmpPos = [(oldPosition[0][0] + tmpCircle[0]), (oldPosition[0][1] + tmpCircle[1])];
+                                    tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                                    vertex(tmpPos[0], tmpPos[1]);
+                                } else {
+                                    tmpPos = [(oldPosition[0][0] + tmpCircle[0] + randomNb) % widthCanvas, (oldPosition[0][1] + tmpCircle[1] + randomNb) % heightCanvas];
+                                    // tmpPos = [(oldPosition[0][0] + tmpCircle[0] + randomNb), (oldPosition[0][1] + tmpCircle[1] + randomNb)];
+                                    curveVertex(tmpPos[0], tmpPos[1]);
+                                }
+                                oldPosition[0] = tmpPos;
+                            }
                             i++
                         }
                         break;
@@ -128,9 +225,18 @@
                         incrementAngle = 60;
                         while (page[i] == 'k' && i < page.length) {
 //                                    line(oldPosition[0][0], oldPosition[0][1], (oldPosition[0][0] + radius * cos(angle * Math.PI / 180)) % widthCanvas, (oldPosition[0][1] + radius * sin(angle * Math.PI / 180)) % heightCanvas);
-                            tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
-                            vertex(tmpPos[0], tmpPos[1]);
-                            oldPosition[0] = tmpPos;
+                            for (var j = 0; j < split; j++) {
+                                if (!curve) {
+                                    // tmpPos = [(oldPosition[0][0] + tmpCircle[0]), (oldPosition[0][1] + tmpCircle[1])];
+                                    tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                                    vertex(tmpPos[0], tmpPos[1]);
+                                } else {
+                                    tmpPos = [(oldPosition[0][0] + tmpCircle[0] + randomNb) % widthCanvas, (oldPosition[0][1] + tmpCircle[1] + randomNb) % heightCanvas];
+                                    // tmpPos = [(oldPosition[0][0] + tmpCircle[0] + randomNb), (oldPosition[0][1] + tmpCircle[1] + randomNb)];
+                                    curveVertex(tmpPos[0], tmpPos[1]);
+                                }
+                                oldPosition[0] = tmpPos;
+                            }
                             i++;
                         }
                         break;
@@ -143,9 +249,18 @@
                         incrementAngle = 120;
                         while (page[i] == 'g' && i < page.length) {
 //                                    line(oldPosition[0][0], oldPosition[0][1], (oldPosition[0][0] + radius * cos(angle * Math.PI / 180)) % widthCanvas, (oldPosition[0][1] + radius * sin(angle * Math.PI / 180)) % heightCanvas);
-                            tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
-                            vertex(tmpPos[0], tmpPos[1]);
-                            oldPosition[0] = tmpPos;
+                            for (var j = 0; j < split; j++) {
+                                if (!curve) {
+                                    // tmpPos = [(oldPosition[0][0] + tmpCircle[0]), (oldPosition[0][1] + tmpCircle[1])];
+                                    tmpPos = [(oldPosition[0][0] + tmpCircle[0]) % widthCanvas, (oldPosition[0][1] + tmpCircle[1]) % heightCanvas];
+                                    vertex(tmpPos[0], tmpPos[1]);
+                                } else {
+                                    tmpPos = [(oldPosition[0][0] + tmpCircle[0] + randomNb) % widthCanvas, (oldPosition[0][1] + tmpCircle[1] + randomNb) % heightCanvas];
+                                    // tmpPos = [(oldPosition[0][0] + tmpCircle[0] + randomNb), (oldPosition[0][1] + tmpCircle[1] + randomNb)];
+                                    curveVertex(tmpPos[0], tmpPos[1]);
+                                }
+                                oldPosition[0] = tmpPos;
+                            }
                             i++;
                         }
                         break;
@@ -210,27 +325,39 @@
                         i++;
                         break;
                 }
-                //i++;
+                // i++;
             }
             //vertex(initPos[0], initPos[1]);
             endShape();
-        }
+        // }
         //return new Promise(resolve => console.log("test"));
     }
 
     async function parallelSplit(page)
     {
-        console.log(page);
-        console.log(page.length);
         var splitTable = page.split(' ');
-        console.log("Coucou");
-        background(194);
+        console.log(splitTable.length);
+        // background(255);
         var tableFunctions = [];
+        var nb = 10;
+        var index = 0;
+        var randomNb = [];
+        for (var i = 0; i < nb; i++) {
+            tableFunctions[i] = [];
+            index = (-100 * splitTable.length) / 2;
             for (var j = 0; j < splitTable.length; j++) {
-                console.log("BEfore = " + j);
-            tableFunctions[j] = ResolveTable(splitTable[j]);
+                randomNb[j] = Math.random() - 0.5;
+                if (i == 0) {
+                    ResolveTable(splitTable[j], false, index, splitTable[j].length * 120, randomNb[j]);
+                }
+                else
+                    ResolveTable(splitTable[j], true, index, splitTable[j].length * 120, randomNb[j]);
+                index += 100;
+            }
+            // if (i < nb - 1)
+                // Promise.all(tableFunctions[i]);
         }
-        await Promise.all(tableFunctions);
+        // await Promise.all(tableFunctions[nb - 1]);
         //console.log("After" + j);
     }
 
