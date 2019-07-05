@@ -3,7 +3,7 @@
 var express = require('express'); 
 var app = express();
 let {PythonShell} = require('python-shell');
-
+let options;
 
 app.use(express.static(__dirname + '/public'));
 // Creates a server which runs on port 3000 and 
@@ -21,17 +21,30 @@ app.get('/',function(req, res)
 // url is of the form localhost:3000/name 
 app.get('/page', printPage); 
 
+function pythonBabel(err, results, res)
+{
+	if (err)
+	{
+		PythonShell.run('library_of_babel.py', options, function callback(err, results)
+		{
+			pythonBabel(err, results, res)
+		});
+		return;
+	}
+	// results is an array consisting of messages collected during execution
+	console.log('results: %j', results);
+	res.status(200).send(results[2]);
+}
+
 function printPage(req, res) { 
-	let options = {
+	options = {
 	  mode: 'text',
-	  args: ['--search', req.query.search]
+	  args: ['--search', req.query.search.substring(0, 3000)]
 	};
 	 
-	PythonShell.run('library_of_babel.py', options, function (err, results) {
-	  if (err) throw err;
-	  // results is an array consisting of messages collected during execution
-	  console.log('results: %j', results);
-	  res.status(200).send(results[2]);
+	PythonShell.run('library_of_babel.py', options, function callback(err, results)
+	{
+		pythonBabel(err, results, res)
 	});
 } 
 
