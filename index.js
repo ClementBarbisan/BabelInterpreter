@@ -19,7 +19,9 @@ app.get('/',function(req, res)
 
 // Function callName() is executed whenever 
 // url is of the form localhost:3000/name 
-app.get('/page', printPage); 
+app.get('/page', printPage);
+
+app.get('/address', printAddress);
 
 function pythonBabel(err, results, res)
 {
@@ -36,10 +38,23 @@ function pythonBabel(err, results, res)
 	res.status(200).send(results[2]);
 }
 
+function printAddress(req, res)
+{
+	options = {
+		mode: 'text',
+		args: ['--checkout', req.query.search]
+	};
+
+	PythonShell.run('library_of_babel.py', options, function callback(err, results)
+	{
+		pythonBabel(err, results, res)
+	});
+}
+
 function printPage(req, res) { 
 	options = {
 	  mode: 'text',
-	  args: ['--search', req.query.search.substring(0, 3000)]
+	  args: ['--search', req.query.search.substring(0, 3260)]
 	};
 	 
 	PythonShell.run('library_of_babel.py', options, function callback(err, results)
