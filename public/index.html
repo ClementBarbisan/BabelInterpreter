@@ -39,6 +39,7 @@
     <script src="../library/three.js"></script>
     <script src="../library/math.js"></script>
     <script>
+        'use strict';
         var pagePrime = "";
         function httpGetAsync(theUrl, callback)
         {
@@ -288,6 +289,7 @@
                         document.getElementById("text").append(element[j]);
                         element[j].style = "display:inline;  word-wrap: break-word; cursor:pointer";
                         element[j].addEventListener('click', function(){
+
                             initValue(text[j]);
                         });
                         element[j].innerHTML = text[j];
@@ -340,11 +342,25 @@
         function initValue(string)
         {
 		console.log(string);
+            scene = null;
+            camera = null;
+            renderer = null;
+            material = null;
+            l = null;
+            text = null;
+            element = null;
             httpGetAsync("/page?search=" + string,SearchText);
         }
 
         function init()
         {
+            scene = null;
+            camera = null;
+            renderer = null;
+            material = null;
+            l = null;
+            text = null;
+            element = null;
             httpGetAsync("/page?search=" + document.getElementById("search").value,SearchText);
         }
 
