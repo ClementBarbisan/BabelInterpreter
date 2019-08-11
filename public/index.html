@@ -48,6 +48,12 @@
                 if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
                     callback(xmlHttp.responseText);
             }
+	    if (scene != undefined)
+	    {
+	    	material.dispose();
+	        renderer.dispose();
+		scene.dispose();
+	    }
             xmlHttp.open("GET", theUrl, true); // true for asynchronous
             xmlHttp.send(null);
         }
@@ -257,15 +263,17 @@
                 return;
             var curve = new THREE.SplineCurve(vertices);
             var points = curve.getPoints(vertices.length);
-            var geometry = new THREE.BufferGeometry().setFromPoints(points);
+	    var buffer = new THREE.BufferGeometry();
+            var geometry = buffer.setFromPoints(points);
             var object = new THREE.Line(geometry, material);
             scene.add(object);
+	    buffer.dispose();
+	    renderer.render(scene, camera);
         }
         function renderScene() {
-            console.log("test");
 		l.next();
             requestAnimationFrame(renderScene);
-            renderer.render(scene, camera);
+            //renderer.render(scene, camera);
         }
 
         async function * parallelSplit(page, scene)
@@ -341,26 +349,11 @@
 
         function initValue(string)
         {
-		console.log(string);
-            scene = null;
-            camera = null;
-            renderer = null;
-            material = null;
-            l = null;
-            text = [];
-            element = [];
             httpGetAsync("/page?search=" + string,SearchText);
         }
 
         function init()
         {
-            scene = null;
-            camera = null;
-            renderer = null;
-            material = null;
-            l = null;
-            text = [];
-            element = [];
             httpGetAsync("/page?search=" + document.getElementById("search").value,SearchText);
         }
 
