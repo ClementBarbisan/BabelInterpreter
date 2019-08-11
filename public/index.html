@@ -347,8 +347,8 @@
             renderer = null;
             material = null;
             l = null;
-            text = null;
-            element = null;
+            text = [];
+            element = [];
             httpGetAsync("/page?search=" + string,SearchText);
         }
 
@@ -359,8 +359,8 @@
             renderer = null;
             material = null;
             l = null;
-            text = null;
-            element = null;
+            text = [];
+            element = [];
             httpGetAsync("/page?search=" + document.getElementById("search").value,SearchText);
         }
 
