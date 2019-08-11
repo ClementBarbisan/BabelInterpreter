@@ -24,14 +24,13 @@
             display: block;
             overflow: hidden;
         }
-
-        body > script {
-            display: none
-        }
+      	body > script{
+		display:none;
+	} 
     </style>
     <body>
         <canvas id="canvas" style="display:block"></canvas>
-        <div style="text-align: center;vertical-align: middle;font-size:32px; height:50px">Select a part of text to navigate through Babel library</div>
+        <div style="text-align: center;vertical-align: middle;font-size:24px; height:100px">Select a part of text to navigate through Babel library</div>
         <div id="text" style="display:block;justify-content: center;"></div>
         <div style="height: 25px"></div>
         <input type="text" style="display:block; height:50px" name="Search" id="search" value="Search a text in Babel library, up to 3260 characters">
@@ -39,7 +38,7 @@
     </body>
     <script src="../library/three.js"></script>
     <script src="../library/math.js"></script>
-    <script async>
+    <script>
         var pagePrime = "";
         function httpGetAsync(theUrl, callback)
         {
@@ -262,7 +261,8 @@
             scene.add(object);
         }
         function renderScene() {
-            l.next();
+            console.log("test");
+		l.next();
             requestAnimationFrame(renderScene);
             renderer.render(scene, camera);
         }
@@ -339,6 +339,7 @@
 
         function initValue(string)
         {
+		console.log(string);
             httpGetAsync("/page?search=" + string,SearchText);
         }
 

@@ -2,8 +2,8 @@
 // and creates its variable. 
 var express = require('express'); 
 var app = express();
-let {PythonShell} = require('python-shell');
-let options;
+var {PythonShell} = require('python-shell');
+var options;
 
 app.use(express.static(__dirname + '/public'));
 // Creates a server which runs on port 3000 and 
@@ -27,7 +27,8 @@ function pythonBabel(err, results, res)
 {
 	if (err)
 	{
-		PythonShell.run('library_of_babel.py', options, function callback(err, results)
+		console.log(err);
+		PythonShell.run('/home/BabelInterpreter/library_of_babel.py', options, function callback(err, results)
 		{
 			pythonBabel(err, results, res)
 		});
@@ -45,7 +46,7 @@ function printAddress(req, res)
 		args: ['--checkout', req.query.search]
 	};
 
-	PythonShell.run('library_of_babel.py', options, function callback(err, results)
+	PythonShell.run('/home/BabelInterpreter/library_of_babel.py', options, function callback(err, results)
 	{
 		pythonBabel(err, results, res)
 	});
@@ -56,9 +57,10 @@ function printPage(req, res) {
 	  mode: 'text',
 	  args: ['--search', req.query.search.substring(0, 3260)]
 	};
-	 
-	PythonShell.run('library_of_babel.py', options, function callback(err, results)
+	console.log(req.query.search);
+	PythonShell.run('/home/BabelInterpreter/library_of_babel.py', options, function callback(err, results)
 	{
+		console.log(results);
 		pythonBabel(err, results, res)
 	});
 } 
