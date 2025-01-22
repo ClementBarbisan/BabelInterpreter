@@ -5,10 +5,6 @@ var options;
 var log = false;
 
 app.use(express.static(__dirname + '/public'));
-app.use(function (req, res, next) {
-	res.set('X-Clacks-Overhead', 'GNU Terry Pratchet');
-	next();
-});
 
 app.listen(3000, function() {
 	console.log('server running on port 3000'); 
@@ -16,6 +12,7 @@ app.listen(3000, function() {
 
 app.get('/',function(req, res)
 {
+	res.set('X-Clacks-Overhead', 'GNU Terry Pratchet');
 	res.render(index.html);
 });
 
