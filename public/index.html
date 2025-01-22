@@ -1,6 +1,7 @@
-<html>
+<html lang="meta">
     <head>
         <meta http-equiv="X-Clacks-Overhead" content="GNU Terry Pratchett" />
+        <title>Babel Interpreter</title>
     </head>
     <style>
         a:hover{
@@ -14,7 +15,7 @@
             position: relative;
             width: 100%;
             display: block;
-            font-family: Arial;
+            font-family: Arial,serif;
             max-width: 100%;
             overflow-x: hidden;
         }
@@ -34,22 +35,26 @@
         <div style="text-align: center;vertical-align: middle;font-size:24px; height:100px">Select a part of text to navigate through Babel library</div>
         <div id="text" style="display:block;justify-content: center;"></div>
         <div style="height: 25px"></div>
-        <input type="text" style="display:block; height:50px" name="Search" id="search" value="Search a text in Babel library, up to 3260 characters">
+        <label for="search"></label><input type="text" style="display:block; height:50px" name="Search" id="search" value="Search a text in Babel library, up to 3260 characters">
         <input type="submit" style="display:block" value="Search" onclick="init()">
     </body>
-    <script src="../library/three.js"></script>
-    <script src="../library/math.js"></script>
+    <script src="../Library/three.js"></script>
+    <script src="../Library/math.js"></script>
     <script>
         'use strict';
-        var pagePrime = "";
+        let pagePrime = "";
+        let scene;
+        let renderer;
+        let material;
+
         function httpGetAsync(theUrl, callback)
         {
-            var xmlHttp = new XMLHttpRequest();
+            const xmlHttp = new XMLHttpRequest();
             xmlHttp.onreadystatechange = function() {
-                if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+                if (xmlHttp.readyState === 4 && xmlHttp.status === 200)
                     callback(xmlHttp.responseText);
             }
-	    if (scene != undefined)
+	    if (scene !== undefined)
 	    {
 	    	material.dispose();
 	        renderer.dispose();
@@ -58,17 +63,18 @@
             xmlHttp.open("GET", theUrl, true); // true for asynchronous
             xmlHttp.send(null);
         }
-        var iterations = 2;
-        var widthCanvas = window.innerWidth / 1.1;
-        var heightCanvas = widthCanvas * (9 / 16);
-        var mouse = {x : 0, y : 0};
-        var scene, camera, renderer, material, raycaster;
-        var l =null;
-        var text = [];
-        var element = [];
+        const log = false;
+        const iterations = 2;
+        const widthCanvas = window.innerWidth / 1.1;
+        const heightCanvas = widthCanvas * (9 / 16);
+        const mouse = {x: 0, y: 0};
+        let camera, raycaster;
+        let l = null;
+        let text = [];
+        const element = [];
         initValue("");
         function rand(vector){
-            return (Math.sin(math.dot(vector ,new Array(12.9898,78.233))) * 43758.5453) - math.floor(Math.sin(math.dot(vector ,new Array(12.9898,78.233))) * 43758.5453);
+            return (Math.sin(math.dot(vector ,[12.9898,78.233])) * 43758.5453) - math.floor(Math.sin(math.dot(vector ,[12.9898,78.233])) * 43758.5453);
         }
         function mod(array)
         {
@@ -80,27 +86,26 @@
         }
         function ResolveTable(page, i, length, scene)
         {
-
-            // var oldPosition = [[(i - widthCanvas / 2) % widthCanvas, (length - heightCanvas / 2) % heightCanvas],[(i - widthCanvas / 2) % widthCanvas, (length - heightCanvas / 2) % heightCanvas]];
-            var oldPosition = [[(i - widthCanvas / 2) % widthCanvas, (length - heightCanvas / 2) % heightCanvas],[(i - widthCanvas / 2) % widthCanvas, (length - heightCanvas / 2) % heightCanvas]];
+            const oldPosition = [[(i - widthCanvas / 2) % widthCanvas, (length - heightCanvas / 2) % heightCanvas], [(i - widthCanvas / 2) % widthCanvas, (length - heightCanvas / 2) % heightCanvas]];
             oldPosition[0] = mod(oldPosition[0]);
             oldPosition[1] = mod(oldPosition[1]);
-            var randomNb = [(rand(new Array(i, length)) - 0.5) * 5, (rand(new Array(length, i)) - 0.5) * 5];
-            var sphere = new THREE.SphereBufferGeometry(6);
-            var sphereMesh = new THREE.Mesh( sphere, new THREE.MeshLambertMaterial( { color: 0x050505 } ) );
+            const randomNb = [(rand([i, length]) - 0.5) * 5, (rand([length, i]) - 0.5) * 5];
+            const sphere = new THREE.SphereBufferGeometry(6);
+            const sphereMesh = new THREE.Mesh(sphere, new THREE.MeshLambertMaterial({color: 0x050505}));
             sphereMesh.position.x = oldPosition[0][0] * 2;
             sphereMesh.position.y = (oldPosition[0][1] - widthCanvas / 2) + oldPosition[0][1];
             sphereMesh.position.z = 0;
             scene.add(sphereMesh);
             i = 0;
-            var split = 1;
-            var initPos = oldPosition[0];
-            var incrementAngle = 90;
-            var radius = 5;
-            var angle = 90;
-            var tmpPos = initPos;
-            var vertices = [];
-            var tmpCircle = [radius * Math.cos(angle * Math.PI / 180), radius * Math.sin(angle * Math.PI / 180)];
+            let split = 1;
+            const initPos = oldPosition[0];
+            let incrementAngle = 90;
+            let radius = 5;
+            let angle = 90;
+            let tmpPos = initPos;
+            const vertices = [];
+            let tmpCircle = [radius * Math.cos(angle * Math.PI / 180), radius * Math.sin(angle * Math.PI / 180)];
+            let index = 0;
             while (i < page.length) {
                 switch (page[i]) {
                     case ',':
@@ -121,7 +126,7 @@
                         break;
                     case 'f':
                         incrementAngle = 120;
-                        var index = 0;
+                        index = 0;
                         while (page[i] === 'f' && i < page.length) {
                             index++;
                             i++;
@@ -131,7 +136,7 @@
                         oldPosition[0] = tmpPos;
                         break;
                     case 'b':
-                        var index = 0;
+                        index = 0;
                         while (page[i] === 'b' && i < page.length) {
                             index++;
                             i++;
@@ -142,7 +147,7 @@
 
                         break;
                     case 'c':
-                        var index = 0;
+                        index = 0;
                         while (page[i] === 'c' && i < page.length) {
                             i++;
                             index++;
@@ -153,7 +158,7 @@
                         break;
                     case 'd':
                         incrementAngle = 60;
-                        var index = 0;
+                        index = 0;
                         while (page[i] === 'd' && i < page.length) {
                             i++;
                             index++;
@@ -164,7 +169,7 @@
                         break;
                     case 'h':
                         incrementAngle = 90;
-                        var index = 0;
+                        index = 0;
                         while (page[i] === 'h' && i < page.length) {
                             index++;
                             i++;
@@ -176,7 +181,7 @@
                         break;
                     case 'j':
                         incrementAngle = 60;
-                        var index = 0;
+                        index = 0;
                         while (page[i] === 'j' && i < page.length) {
                             index++;
                             i++;
@@ -188,7 +193,7 @@
                         break;
                     case 'k':
                         incrementAngle = 60;
-                        var index = 0;
+                        index = 0;
                         while (page[i] === 'k' && i < page.length) {
                             index++;
                             i++;
@@ -202,7 +207,7 @@
                         break;
                     case 'g':
                         incrementAngle = 120;
-                        var index = 0;
+                        index = 0;
                         while (page[i] === 'g' && i < page.length) {
                             index++;
                             i++;
@@ -262,11 +267,11 @@
 
             if (vertices.length <= 1)
                 return;
-            var curve = new THREE.SplineCurve(vertices);
-            var points = curve.getPoints(vertices.length);
-	    var buffer = new THREE.BufferGeometry();
-            var geometry = buffer.setFromPoints(points);
-            var object = new THREE.Line(geometry, material);
+            const curve = new THREE.SplineCurve(vertices);
+            const points = curve.getPoints(vertices.length);
+            const buffer = new THREE.BufferGeometry();
+            const geometry = buffer.setFromPoints(points);
+            const object = new THREE.Line(geometry, material);
             scene.add(object);
 	    buffer.dispose();
 	    renderer.render(scene, camera);
@@ -274,24 +279,22 @@
         function renderScene() {
 		l.next();
             requestAnimationFrame(renderScene);
-            //renderer.render(scene, camera);
         }
-
         async function * parallelSplit(page, scene)
         {
-            var splitTable = page.split(' ');
-            var nb = 5;
-            var index = 0;
-            for (var i = 0; i < nb; i++) {
+            const splitTable = page.split(' ');
+            const nb = 5;
+            let index = 0;
+            for (let i = 0; i < nb; i++) {
                 index = -(widthCanvas / splitTable.length) % widthCanvas;
                 index = mod(index);
-                for (var j = 0; j < splitTable.length; j++) {
+                for (let j = 0; j < splitTable.length; j++) {
                     yield ResolveTable(splitTable[j], index, splitTable[j].length * 120 - heightCanvas / 2, scene);
                     index += 100;
                     index %= widthCanvas;
                     if (i === 0) {
                         if (j === 0) {
-                            for (var k = 0; k < element.length; k++)
+                            for (let k = 0; k < element.length; k++)
                                 element[k].remove();
                         }
                         element[j] = document.createElement('a');
@@ -305,20 +308,20 @@
                         element[j].innerHTML += ' ';
                     }
                 }
-                console.log(i);
+                if (log)
+                    console.log(i);
             }
         }
-
         function SearchText(data) {
             text = data.split(' ');
             pagePrime = data.replace(/y/g, "z").replace(/z/g, "aeiou").replace(/a/g, "bcd").replace(/e/g, "fgh").replace(/i/g, "jklmn").replace(/o/g, "pqrst").replace(/u/g, "vwx");
-            for (var index2 = 0; index2 <= iterations; index2++)
+            for (let index2 = 0; index2 <= iterations; index2++)
                 pagePrime = pagePrime.replace(/b/g, "bcb").replace(/c/g, "ccc").replace(/d/g, "d-g+d+g-g").replace(/f/g, "f+f-f-f+f").replace(/g/g, "gg")
                     .replace(/h/g, "h").replace(/j/g, "k-j-k").replace(/k/g, "j+k+j").replace(/l+/g, "l").replace(/m+/g, "m")
                     .replace(/n+/g, "n").replace(/p+/g, "p").replace(/q+/g, "q").replace(/r+/g, "r").replace(/s+/g, "s")
                     .replace(/t+/g, "t").replace(/u+/g, "u").replace(/v/g, "v+wh+").replace(/w/g, "-hv-w").replace(/x/g, "").replace(/[+]+/g, "+").replace(/[-]+/g, "-");
 
-            var canvas = document.querySelector('#canvas');
+            const canvas = document.querySelector('#canvas');
             renderer = new THREE.WebGLRenderer({
                 canvas,
                 antialias: true,
@@ -333,13 +336,9 @@
                 opacity: 0.4,
                 blending: THREE.SubtractiveBlending
             });
-            var fov = 75;
-            var aspect = 16 / 9;
-            var near = 0.01;
-            var far = 10000;
-            // camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-            camera = new THREE.OrthographicCamera( -widthCanvas, widthCanvas, -heightCanvas, heightCanvas, near, far );
-            // camera.position.set(0, 0, 750);
+            const near = 0.01;
+            const far = 10000;
+            camera = new THREE.OrthographicCamera( -widthCanvas, widthCanvas, -heightCanvas, heightCanvas, near, far);
             camera.position.set(0, 0, 1);
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xf0f0f0);
@@ -347,16 +346,13 @@
             l = parallelSplit(pagePrime, scene);
             renderScene();
         }
-
         function initValue(string)
         {
             httpGetAsync("/page?search=" + string,SearchText);
         }
-
         function init()
         {
             httpGetAsync("/page?search=" + document.getElementById("search").value,SearchText);
         }
-
     </script>
 </html>
