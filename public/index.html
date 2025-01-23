@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="UTF-8" http-equiv="X-Clacks-Overhead" content="GNU Terry Pratchett" />
+        <meta charset="UTF-8"/>
     </head>
     <title>Babel Interpreter</title>
     <style>
@@ -55,13 +55,14 @@
                 if (xmlHttp.readyState === 4 && xmlHttp.status === 200)
                     callback(xmlHttp.responseText);
             }
-	    if (scene !== undefined)
-	    {
-	    	material.dispose();
-	        renderer.dispose();
-		scene.dispose();
-	    }
-            xmlHttp.open("GET", theUrl, true); // true for asynchronous
+            if (scene !== undefined)
+            {
+                material.dispose();
+                renderer.dispose();
+                scene.dispose();
+	        }
+            xmlHttp.open("GET", theUrl, true);// true for asynchronous
+            xmlHttp.setRequestHeader('X-Clacks-Overhead', 'GNU Terry Pratchett');
             xmlHttp.send(null);
         }
         const log = false;

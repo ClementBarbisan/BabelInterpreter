@@ -1,34 +1,37 @@
 var express = require('express');
 var app = express();
 var {PythonShell} = require('python-shell');
+const {response} = require("express");
 var options;
+var params = {
+	setHeaders: function (res, path, stat) {
+		res.set('X-Clacks-Overhead', 'GNU Terry Pratchett');
+	}
+}
+
 var log = false;
 
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(__dirname + '/public', params));
 
 app.listen(3000, function() {
 	console.log('server running on port 3000'); 
 } )
 
-app.get('/',function(req, res)
+app.get('/page', function (req, res)
 {
-	res.set('X-Clacks-Overhead', 'GNU Terry Pratchet');
-	res.render(index.html);
+	printPage(req, res);
 });
 
-app.get('/page', printPage);
-
-app.get('/address', printAddress);
+app.get('/address', function (req, res)
+{
+	printAddress(req, res);
+});
 
 function pythonBabel(err, results, res)
 {
 	if (err)
 	{
 		console.log(err);
-		PythonShell.run(__dirname + '/library_of_babel.py', options, function callback(err, results)
-		{
-			pythonBabel(err, results, res)
-		});
 		return;
 	}
 	if (log)
@@ -63,3 +66,8 @@ function printPage(req, res) {
 		pythonBabel(err, results, res)
 	});
 }
+
+app.get('/', function (req, res)
+{
+	res.render('index');
+});
